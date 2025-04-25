@@ -47,7 +47,12 @@
         </div>
         
     </form>
-    <a href="{{ url('/auth/redirect') }}">
-        <button>Login with GitHub</button>
+    <a href="{{ url('/auth/redirect') }}" class="auth-button github-btn">
+        Login with GitHub
     </a>
+    
+    <a href="{{ route('google.redirect') }}" class="auth-button google-btn">
+        Login with Google
+    </a>
+
 </x-guest-layout>

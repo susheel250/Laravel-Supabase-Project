@@ -37,5 +37,9 @@ return [
     'supabase' => [
         'key' => env('SUPABASE_API_KEY'),
     ],
+    'google' => [
+        'client_id' => env('GOOGLE_CLIENT_ID'),
+    ],
+
 
 ];

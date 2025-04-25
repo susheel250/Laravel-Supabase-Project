@@ -55,6 +55,18 @@ Route::get('/handle-supabase', function () {
     return view('handle-supabase');
 });
 
+// Route to initiate Google login
+// 1. Redirect user to Google OAuth
+Route::get('/auth/google/redirect', [SupabaseAuthController::class, 'redirectToGoogle'])->name('google.redirect');
+
+// 2. Google redirects back here (shows the Blade view that extracts token from hash)
+Route::get('/auth/google/callback', fn () => view('auth.google-callback'))->name('google.callback');
+
+// 3. JavaScript in the view sends access_token to this route
+Route::post('/auth/process-supabase-token', [SupabaseAuthController::class, 'handleGoogleCallback'])->name('google.process');
+
+
+
 
 // Profile section - optional if you plan to use Laravel's auth system
 /*

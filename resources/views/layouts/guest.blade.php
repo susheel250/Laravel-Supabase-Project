@@ -13,6 +13,36 @@
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+        <style>
+            .auth-button {
+                display: inline-block;
+                padding: 10px 20px;
+                margin: 10px;
+                font-size: 16px;
+                border: none;
+                border-radius: 8px;
+                text-decoration: none;
+                color: white;
+                cursor: pointer;
+                transition: background-color 0.3s ease;
+            }
+        
+            .github-btn {
+                background-color: #333;
+            }
+        
+            .github-btn:hover {
+                background-color: #000;
+            }
+        
+            .google-btn {
+                background-color: #db4437;
+            }
+        
+            .google-btn:hover {
+                background-color: #c23321;
+            }
+        </style>
     </head>
     <body class="font-sans text-gray-900 antialiased">
         <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100 dark:bg-gray-900">

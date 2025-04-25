@@ -55,8 +55,8 @@ class SupabaseAuthController extends Controller
                 'avatar_url' => $userInfo['user_metadata']['avatar_url'] ?? null,
             ]
         );
-        
-        
+
+
 
         // Laravel login
         Auth::login($user);
@@ -68,5 +68,56 @@ class SupabaseAuthController extends Controller
     {
         Auth::logout();
         return redirect('/')->with('status', 'Logged out successfully');
+    }
+
+    // Redirect to Google for OAuth
+    public function redirectToGoogle()
+    {
+        $supabaseUrl = 'https://hxqpwmdypzscudyoqehk.supabase.co/auth/v1/authorize';
+        $redirectUri = route('google.callback');
+        $provider = 'google';
+
+        // \Log::info('Redirecting to Google via Supabase', [
+        //     'url' => "{$supabaseUrl}?provider={$provider}&redirect_to={$redirectUri}"
+        // ]);
+
+        return redirect("{$supabaseUrl}?provider={$provider}&redirect_to={$redirectUri}");
+    }
+
+
+    // Handle Google OAuth callback
+    public function handleGoogleCallback(Request $request)
+    {
+        // \Log::info("Google callback hit");
+
+        $accessToken = $request->input('access_token');
+        // \Log::info("Access token received: " . json_encode(['token' => $accessToken]));
+
+        if (!$accessToken) {
+            return redirect('/')->with('error', 'No token provided');
+        }
+
+        // Get user from Supabase
+        $userInfo = SupabaseHelper::getUserInfo($accessToken);
+
+        if (!$userInfo || !isset($userInfo['email'])) {
+            return redirect('/')->with('error', 'Invalid user data from Supabase');
+        }
+
+        $user = User::updateOrCreate(
+            ['email' => $userInfo['email']],
+            [
+                'name' => $userInfo['user_metadata']['full_name']
+                    ?? $userInfo['user_metadata']['name']
+                    ?? 'Google User',
+
+                'provider' => 'google',
+                'provider_id' => $userInfo['user_metadata']['provider_id'] ?? null,
+                'avatar_url' => $userInfo['user_metadata']['avatar_url'] ?? null,
+            ]
+        );
+
+        Auth::login($user);
+        return redirect('/dashboard');
     }
 }
