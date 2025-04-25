@@ -46,15 +46,19 @@ class SupabaseAuthController extends Controller
 
 
         // Create or update the user
-        $user = User::updateOrCreate(
-            ['email' => $userInfo['email']],
-            [
-                'name' => $userInfo['user_metadata']['preferred_username'] ?? 'GitHub User',
-                'provider' => $userInfo['app_metadata']['provider'] ?? 'github',
-                'provider_id' => $userInfo['user_metadata']['provider_id'] ?? null,
-                'avatar_url' => $userInfo['user_metadata']['avatar_url'] ?? null,
-            ]
-        );
+        $user = User::firstOrNew(['email' => $userInfo['email']]);
+
+        // Update only if not already set or set to a default placeholder
+        if (!$user->name || $user->name === 'GitHub User') {
+            $user->name = $userInfo['user_metadata']['preferred_username'] ?? 'GitHub User';
+        }
+
+        $user->provider = $userInfo['app_metadata']['provider'] ?? 'github';
+        $user->provider_id = $userInfo['user_metadata']['provider_id'] ?? null;
+        $user->avatar_url = $userInfo['user_metadata']['avatar_url'] ?? null;
+
+        $user->save();
+
 
 
 
@@ -104,18 +108,19 @@ class SupabaseAuthController extends Controller
             return redirect('/')->with('error', 'Invalid user data from Supabase');
         }
 
-        $user = User::updateOrCreate(
-            ['email' => $userInfo['email']],
-            [
-                'name' => $userInfo['user_metadata']['full_name']
-                    ?? $userInfo['user_metadata']['name']
-                    ?? 'Google User',
+        $user = User::firstOrNew(['email' => $userInfo['email']]);
 
-                'provider' => 'google',
-                'provider_id' => $userInfo['user_metadata']['provider_id'] ?? null,
-                'avatar_url' => $userInfo['user_metadata']['avatar_url'] ?? null,
-            ]
-        );
+        // Only set values if they're not already set (or conditionally update if needed)
+        if (!$user->name || $user->name === 'Google User') {
+            $user->name = $userInfo['user_metadata']['preferred_username'] ?? 'Google User';
+        }
+
+        $user->provider = 'google';
+        $user->provider_id = $userInfo['user_metadata']['provider_id'] ?? null;
+        $user->avatar_url = $userInfo['user_metadata']['avatar_url'] ?? null;
+
+        $user->save();
+
 
         Auth::login($user);
         return redirect('/dashboard');
